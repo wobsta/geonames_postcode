@@ -39,7 +39,7 @@ In Python::
 Usage
 -----
 
-see https://readthedocs.org/projects/geonames_postcode
+see http://geonames-postcode.readthedocs.io/
 
 License
 -------
