@@ -1,0 +1,9 @@
+.python-version
+__pycache__
+*.pyc
+MANIFEST
+geonames_postcode.egg-info
+dist
+geonames_postcode/data/??.zip
+geonames_postcode/data/??.py
+docs/_*
