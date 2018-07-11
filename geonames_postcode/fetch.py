@@ -32,7 +32,7 @@ import collections, datetime, importlib, io, itertools, json, os, pprint, unicod
 
 from . import dataDir, postcode_item, name_item, distance
 
-def fetch(countries):
+def fetch(*countries):
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), 'fetch.ini'))
     for country in countries:
@@ -172,7 +172,7 @@ def fetch(countries):
         importlib.import_module('geonames_postcode.data.%s' % country.lower())
 
 def main():
-    fetch(sys.argv[1:])
+    fetch(*sys.argv[1:])
 
 if __name__ == '__main__':
     main()
