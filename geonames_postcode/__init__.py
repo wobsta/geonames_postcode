@@ -166,8 +166,8 @@ def postcode_regions(country, postcode):
     """Get regions of `(country, postcode)`.
 
     Most of the time exactly one region is returned, but as postcodes and
-    region boundaries do not match in some cases, serveral reagions might
-    be returned. The returned list is sorted alphabecitally.
+    region boundaries do not match in some cases, several regions might
+    be returned. The returned list is sorted alphabetically.
 
     >>> postcode_regions('DE', '85716')
     ['Bayern']

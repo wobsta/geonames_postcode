@@ -113,7 +113,7 @@ The configuration options are:
     distinguish between locations. The :func:`fetch` function thus tries to add
     ``regions``, ``sub-regions``, and ``sub-sub-regions`` as given in the
     postcode data. However, this might not be enough in all cases, and thus the
-    postcodes themself might be taken into account up to the given number of
+    postcodes themselves might be taken into account up to the given number of
     characters.
 
 Indices and tables
