@@ -27,8 +27,8 @@ if sys.version_info[0] == 2:
 else:
     from itertools import zip_longest
 
-version = '0.1'
-date = '2018/07/11'
+version = '0.2'
+date = '2018/07/12'
 
 #: Postcodes are mapped to postcode items.
 postcode_item = collections.namedtuple('postcode_item', ['names', 'regions', 'latitude', 'longitude'])
@@ -77,7 +77,7 @@ def valid_postcode(country, postcode):
     >>> valid_postcode('DE', '85716')
     True
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     return postcode in postcodes[country]
 
 def valid_name(country, name):
@@ -86,11 +86,11 @@ def valid_name(country, name):
     >>> valid_name('DE', 'Unterschleißheim')
     True
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     return name.lower() in names[country]
 
 def valid(country, postcode_or_name):
-    """Check validity of `(country, data)` combination where `data` can be a postcode or a name.
+    """Check validity of `(country, postcode_or_name)` combination where `postcode_or_name` can be a postcode or a name.
 
     >>> valid('DE', '85716')
     True
@@ -100,31 +100,31 @@ def valid(country, postcode_or_name):
     return valid_postcode(country, postcode_or_name) or valid_name(country, postcode_or_name)
 
 def coordinates_postcode(country, postcode):
-    """Get coordinates of `(country, postcode)`. Returns `(None, None)` when the `postcode` is invalid for `country`.
+    """Get coordinates `(latitude, longitude)` of `(country, postcode)`. Returns `(None, None)` when the `postcode` is invalid for `country`.
 
     >>> coordinates_postcode('DE', '85716')
     (48.2804, 11.5768)
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     r = postcodes[country].get(postcode)
     if r:
         return r.latitude, r.longitude
     return None, None
 
 def coordinates_name(country, name):
-    """Get coordinates of `(country, name)`. Returns `(None, None)` when the `name` is invalid for `country`.
+    """Get coordinates `(latitude, longitude)` of `(country, name)`. Returns `(None, None)` when the `name` is invalid for `country`.
 
     >>> coordinates_name('DE', 'Unterschleißheim')
     (48.2804, 11.5768)
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     r = names[country].get(name.lower())
     if r:
         return r.latitude, r.longitude
     return None, None
 
 def coordinates(country, postcode_or_name):
-    """Get coordinates of `(country, data)`. Returns `(None, None)` when `data` is neither a valid postcode nor name for `country`.
+    """Get coordinates `(latitude, longitude)` of `(country, postcode_or_name)`. Returns `(None, None)` when `postcode_or_name` is neither a valid postcode nor name for `country`.
 
     >>> coordinates('DE', '85716')
     (48.2804, 11.5768)
@@ -137,7 +137,7 @@ def coordinates(country, postcode_or_name):
     return coordinates_name(country, postcode_or_name)
 
 def distance(latitude1, longitude1, latitude2, longitude2):
-    """Calculates the distance between two coordinates (in km).
+    """Calculates the distance in km between the two coordinates `(latitude1, longitude1)` and `(latitude2, longitude2)`.
 
     >>> distance(*coordinates('DE', 'Unterschleißheim'), *coordinates('DE', 'München'))
     15.289746063637923
@@ -156,7 +156,7 @@ def postcode_names(country, postcode):
     >>> postcode_names('DE', '85716')
     ['Unterschleißheim']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     r = postcodes[country].get(postcode)
     if r:
         return r.names
@@ -172,7 +172,7 @@ def postcode_regions(country, postcode):
     >>> postcode_regions('DE', '85716')
     ['Bayern']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     r = postcodes[country].get(postcode)
     if r:
         return r.regions
@@ -184,7 +184,7 @@ def name_postcodes(country, name):
     >>> name_postcodes('DE', 'Unterschleißheim')
     ['85716']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     r = names[country].get(name.lower())
     if r:
         return r.postcodes
@@ -200,7 +200,7 @@ def name_autocomplete(country, name_start, sort='size'):
     >>> name_autocomplete('DE', 'Untersch')
     ['Unterschleißheim', 'Unterschneidheim', 'Unterschönau', 'Unterschwaningen']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     name_start_lower = name_start.lower()
     r = [''.join(c.upper() if l is not None and l.isupper() else c for c, l in zip_longest(name, name_start))
          for name in names[country] if name.startswith(name_start_lower)]
@@ -218,6 +218,18 @@ def name_autocomplete(country, name_start, sort='size'):
         assert sort is None
     return r
 
+def name_substitutes(country, name, *substitutes):
+    """Add name substitutes `substitutes` for `name` in country.
+
+    >>> name_substitutes('DE', 'Frankfurt am Main', 'Frankfurt')
+    >>> coordinates('DE', 'Frankfurt')
+    (50.11940487804876, 8.653973170731707)
+    """
+    if country not in _regions: load(country)
+    for substitute in substitutes:
+        assert substitute.lower() not in names[country]
+        names[country][substitute.lower()] = names[country][name.lower()]
+
 def nearby_postcodes(country, latitude, longitude, dist):
     """Get postcodes closer than `dist` (in km) from the given coordinate.
 
@@ -227,7 +239,7 @@ def nearby_postcodes(country, latitude, longitude, dist):
     >>> nearby_postcodes('DE', *coordinates('DE', 'Unterschleißheim'), 5)
     ['85386', '85716', '85764', '85778']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     return sorted(postcode for postcode, item in postcodes[country].items()
                   if distance(item.latitude, item.longitude, latitude, longitude) < dist)
 
@@ -239,5 +251,5 @@ def regions(country):
     >>> regions('DE')
     ['Baden-Württemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hessen', 'Mecklenburg-Vorpommern', 'Niedersachsen', 'Nordrhein-Westfalen', 'Rheinland-Pfalz', 'Saarland', 'Sachsen', 'Sachsen-Anhalt', 'Schleswig-Holstein', 'Thüringen']
     """
-    if not country in _regions: load(country)
+    if country not in _regions: load(country)
     return _regions[country]

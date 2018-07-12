@@ -25,6 +25,7 @@ High-level interface
 
 .. autofunction:: name_postcodes
 .. autofunction:: name_autocomplete
+.. autofunction:: name_substitutes
 
 .. autofunction:: nearby_postcodes
 
@@ -88,16 +89,16 @@ configuration done in the ``fetch.ini`` file:
 The configuration options are:
 
 ``skip_for_names``
-    Sometimes you need to skip some postcode data when querying names and you
-    can do so by by ``name``, ``name_start`` (names starting with),
-    ``latitude``, ``longitude``, and/or ``postcode``. Several of those settings
-    can be given as a list of dictionaries (i.e. the option is parsed as json).
-    Within each dictionary the conditions are combined with ``and``. The items
-    of the list are taken as ``or`` conditions.
+    Skip some postcode data when building the names. The data to be skipped is
+    selected by ``name``, ``name_start`` (names starting with), ``latitude``,
+    ``longitude``, and/or ``postcode``. Several selectors are given by a list
+    of dictionaries (i.e. the option is parsed as json). Within each dictionary
+    the conditions are combined with ``and``. The items of the list are taken
+    as ``or`` conditions.
 
 ``postcode_remove_from``
-    You can throw away details in the postcodes by removing all the rest
-    starting from the given string.
+    Throw away details in the postcodes by removing all the tail starting at
+    the given string.
 
 ``max_distance``
     Combine equal names for different postcodes if their distance is not further
@@ -112,9 +113,8 @@ The configuration options are:
     It turns out that the names alone are not necessarily enough to properly
     distinguish between locations. The :func:`fetch` function thus tries to add
     ``regions``, ``sub-regions``, and ``sub-sub-regions`` as given in the
-    postcode data. However, this might not be enough in all cases, and thus the
-    postcodes themselves might be taken into account up to the given number of
-    characters.
+    postcode data. However, this still might not be enough in all cases, and the
+    postcodes might be taken into account up to the given number of characters.
 
 Indices and tables
 ------------------
