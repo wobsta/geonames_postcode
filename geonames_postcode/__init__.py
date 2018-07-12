@@ -219,7 +219,7 @@ def name_autocomplete(country, name_start, sort='size'):
     return r
 
 def name_substitutes(country, name, *substitutes):
-    """Add name substitutes `substitutes` for `name` in country.
+    """Add name `substitutes` for `name` in `country`.
 
     >>> name_substitutes('DE', 'Frankfurt am Main', 'Frankfurt')
     >>> coordinates('DE', 'Frankfurt')
