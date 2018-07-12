@@ -221,9 +221,11 @@ def name_autocomplete(country, name_start, sort='size'):
 def name_substitutes(country, name, *substitutes):
     """Add name `substitutes` for `name` in `country`.
 
+    >>> valid('DE', 'Frankfurt')
+    False
     >>> name_substitutes('DE', 'Frankfurt am Main', 'Frankfurt')
-    >>> coordinates('DE', 'Frankfurt')
-    (50.11940487804876, 8.653973170731707)
+    >>> valid('DE', 'Frankfurt')
+    True
     """
     if country not in _regions: load(country)
     for substitute in substitutes:
