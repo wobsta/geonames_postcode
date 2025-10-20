@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 #
-# Copyright (C) 2018 André Wobst <project.geonames_postcode@wobsta.de>
+# Copyright (C) 2018, 2025 André Wobst <project.geonames_postcode@wobsta.de>
 #
 # This file is part of geonames_postcode (https://github.com/wobsta/geonames_postcode).
 #
@@ -27,8 +27,8 @@ if sys.version_info[0] == 2:
 else:
     from itertools import zip_longest
 
-version = '0.2'
-date = '2018/07/12'
+version = '0.3'
+date = '2025/10/20'
 
 #: Postcodes are mapped to postcode items.
 postcode_item = collections.namedtuple('postcode_item', ['names', 'regions', 'latitude', 'longitude'])
@@ -140,13 +140,19 @@ def distance(latitude1, longitude1, latitude2, longitude2):
     """Calculates the distance in km between the two coordinates `(latitude1, longitude1)` and `(latitude2, longitude2)`.
 
     >>> distance(*coordinates('DE', 'Unterschleißheim'), *coordinates('DE', 'München'))
-    15.289746063637923
+    15.274244595433155
     """
     latitude1 *= math.pi/180
     longitude1 *= math.pi/180
     latitude2 *= math.pi/180
     longitude2 *= math.pi/180
-    return math.acos(min(math.sin(latitude2)*math.sin(latitude1)+math.cos(latitude2)*math.cos(latitude1)*math.cos(longitude2-longitude1), 1)) * 6380
+    phi = math.sin(latitude2)*math.sin(latitude1)+math.cos(latitude2)*math.cos(latitude1)*math.cos(longitude2-longitude1)
+    if phi >= 1:
+        return 0
+    elif phi <= -1:
+        return math.pi * 6380
+    else:
+        return math.acos(phi) * 6380
 
 def postcode_names(country, postcode):
     """Get names of `(country, postcode)`.
@@ -239,7 +245,7 @@ def nearby_postcodes(country, latitude, longitude, dist):
     filter with the SQL `in` operator.
 
     >>> nearby_postcodes('DE', *coordinates('DE', 'Unterschleißheim'), 5)
-    ['85386', '85716', '85764', '85778']
+    ['85386', '85711', '85716', '85764', '85778']
     """
     if country not in _regions: load(country)
     return sorted(postcode for postcode, item in postcodes[country].items()

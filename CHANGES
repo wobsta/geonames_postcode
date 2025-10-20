@@ -1,3 +1,10 @@
+0.3 (2025/10/20):
+ - switch to pyproject.toml
+ - add region filter to skip_for_names
+ - filter regions by skip_for_names, too
+ - skip unlocalised regions for DE
+ - add local fetch.ini config if present
+
 0.2 (2018/07/12):
  - add name_substitutes
  - typos and documentation fixes

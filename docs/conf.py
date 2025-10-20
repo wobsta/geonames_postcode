@@ -23,7 +23,7 @@ sys.path.insert(0, '..')
 # -- Project information -----------------------------------------------------
 
 project = 'geonames_postcode'
-copyright = u'2018, André Wobst'
+copyright = u'2018, 2025, André Wobst'
 author = u'André Wobst'
 
 # The short X.Y version

@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 #
-# Copyright (C) 2018 André Wobst <project.geonames_postcode@wobsta.de>
+# Copyright (C) 2018, 2025 André Wobst <project.geonames_postcode@wobsta.de>
 #
 # This file is part of geonames_postcode (https://github.com/wobsta/geonames_postcode).
 #
@@ -35,6 +35,9 @@ from . import dataDir, postcode_item, name_item, distance
 def fetch(*countries):
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), 'fetch.ini'))
+    if os.path.exists('fetch.ini'):
+        print('load local fetch.ini in addition to the distributed one')
+        config.read('fetch.ini')
     for country in countries:
         if country not in config.sections():
             config.add_section(country)
@@ -76,8 +79,6 @@ def fetch(*countries):
                     geonames_data.append(geonames_item(postcode, name,
                         region or None, subregion or None, subsubregion or None, latitude, longitude))
 
-        regions = set(item.region for item in geonames_data if item.region is not None)
-
         def mean(items):
             sum = count = 0
             for item in items:
@@ -96,6 +97,7 @@ def fetch(*countries):
                     if ((key == 'name' and item.name != value) or
                         (key == 'name_start' and not item.name.startswith(value)) or
                         (key == 'postcode' and item.postcode != value) or
+                        (key == 'region' and item.region != value) or
                         (key == 'latitude' and item.latitude != value) or
                         (key == 'longitude' and item.longitude != value)):
                         break
@@ -113,9 +115,12 @@ def fetch(*countries):
                                                 mean(item.latitude for item in items),
                                                 mean(item.longitude for item in items))
 
-        names = {}
         remaining_geonames_data = [item for item in geonames_data
                                    if not match(item, json.loads(config.get(country, 'skip_for_names')))]
+
+        regions = set(item.region for item in remaining_geonames_data if item.region is not None)
+
+        names = {}
         max_distance = config.getfloat(country, 'max_distance')
         add_distance_per_item = config.getfloat(country, 'add_distance_per_item')
         for add_details_to_name in range(4+config.getint(country, 'name_postcode_chars')):
@@ -162,10 +167,10 @@ def fetch(*countries):
         with open(os.path.join(dataDir, 'template'), 'r') as f:
             template = f.read()
         data = {'url': url,
-                'now': datetime.datetime.utcnow().isoformat()}
+                'now': datetime.datetime.now(datetime.UTC).isoformat()}
         with open(os.path.join(dataDir, '%s.py' % country.lower()), 'w') as f:
             f.write(template.format(url=url,
-                                    now=datetime.datetime.utcnow().isoformat(),
+                                    now=datetime.datetime.now(datetime.UTC).isoformat(),
                                     regions=pprint.pformat(sorted(list(regions), key=alphabetical)),
                                     postcodes=pprint.pformat(postcodes),
                                     names=pprint.pformat(names)))
